@@ -57,28 +57,12 @@ class LeaveRequestController extends Controller
             'end_date'    => $request->end_date,
             'reason'      => $request->reason,
             'status'      => 'pending',
+            'hr_approval' => false,
+            'manager_approval' => false,
         ]);
 
         return redirect()->route('leave.requests.index')
             ->with('success', 'Leave request submitted successfully.');
-    }
-
-    public function updateAnnualLeaveBalance()
-    {
-        $employees = Employee::all();
-        foreach ($employees as $employee) {
-            $leaveBalance = LeaveBalance::firstOrCreate(
-                ['employee_id' => $employee->id],
-                ['total_leave_days' => 18, 'used_leave_days' => 0, 'remaining_leave_days' => 18]
-            );
-
-            $lastUpdate = $leaveBalance->updated_at;
-            if (!$lastUpdate || $lastUpdate->diffInYears(now()) >= 1) {
-                $leaveBalance->total_leave_days += 18; 
-                $leaveBalance->remaining_leave_days += 18;
-                $leaveBalance->save();
-            }
-        }
     }
 
     public function index()
@@ -89,29 +73,78 @@ class LeaveRequestController extends Controller
         return view('leave.requests', compact('leaveRequests'));
     }
 
-    public function show($id)
+    public function hrIndex()
     {
-        $leaveRequest = LeaveRequest::with(['manager:id,name', 'employee:id,name'])->findOrFail($id);
-        return view('leave.show', compact('leaveRequest'));
+        $leaveRequests = LeaveRequest::with('employee')->where('status', 'pending')->paginate(10);
+        return view('leave.rhRequest', compact('leaveRequests'));
     }
 
-    public function update(Request $request, $id)
+    public function managerIndex()
+    {
+        $managerId = Auth::id();
+        $leaveRequests = LeaveRequest::with('employee')
+            ->whereHas('employee', function ($query) use ($managerId) {
+                $query->where('manager_id', $managerId);
+            })
+            ->where('status', 'pending')
+            ->get();
+
+        return view('leave.managerRequest', compact('leaveRequests'));
+    }
+
+    public function approveByHR($id)
     {
         $leaveRequest = LeaveRequest::findOrFail($id);
+        $leaveRequest->update(['hr_approval' => true]);
 
-        $validated = $request->validate([
-            'leave_type'  => 'sometimes|required|string',
-            'start_date'  => 'sometimes|required|date',
-            'end_date'    => 'sometimes|required|date|after_or_equal:start_date',
-            'reason'      => 'sometimes|required|string',
-            'manager_id'  => 'sometimes|required|exists:employees,id',
-            'status'      => 'sometimes|required|in:pending,approved,rejected',
-        ]);
+        if ($leaveRequest->manager_approval) {
+            $this->finalizeApproval($leaveRequest);
+        }
 
-        $leaveRequest->update($request->all());
+        return redirect()->back()->with('success', 'Leave request approved by HR.');
+    }
 
-        return redirect()->route('leave.requests.index')
-            ->with('success', 'Leave request updated successfully.');
+    public function approveByManager($id)
+    {
+        $leaveRequest = LeaveRequest::findOrFail($id);
+        $leaveRequest->update(['manager_approval' => true]);
+
+        if ($leaveRequest->hr_approval) {
+            $this->finalizeApproval($leaveRequest);
+        }
+
+        return redirect()->back()->with('success', 'Leave request approved by Manager.');
+    }
+
+    private function finalizeApproval(LeaveRequest $leaveRequest)
+    {
+        $leaveBalance = LeaveBalance::where('employee_id', $leaveRequest->employee_id)->first();
+        if ($leaveBalance) {
+            $requestedDays = Carbon::parse($leaveRequest->start_date)->diffInDays(Carbon::parse($leaveRequest->end_date)) + 1;
+            $leaveBalance->used_leave_days += $requestedDays;
+            $leaveBalance->remaining_leave_days -= $requestedDays;
+            $leaveBalance->save();
+        }
+
+        $leaveRequest->update(['status' => 'approved']);
+    }
+
+    public function rejectByHR($id)
+    {
+        $this->rejectLeave($id);
+        return redirect()->back()->with('success', 'Leave request rejected by HR.');
+    }
+
+    public function rejectByManager($id)
+    {
+        $this->rejectLeave($id);
+        return redirect()->back()->with('success', 'Leave request rejected by Manager.');
+    }
+
+    private function rejectLeave($id)
+    {
+        $leaveRequest = LeaveRequest::findOrFail($id);
+        $leaveRequest->update(['status' => 'rejected']);
     }
 
     public function destroy($id)
@@ -129,58 +162,5 @@ class LeaveRequestController extends Controller
 
         return redirect()->route('leave.requests.index')
             ->with('success', 'Leave request deleted successfully.');
-    }
-
-    public function hrIndex()
-    {
-        $leaveRequests = LeaveRequest::with('employee')->paginate(10);
-        return view('leave.rhRequest', compact('leaveRequests'));
-    }
-
-    public function approve($id)
-    {
-        $leaveRequest = LeaveRequest::findOrFail($id);
-
-        $leaveBalance = LeaveBalance::where('employee_id', $leaveRequest->employee_id)->first();
-        if ($leaveBalance) {
-            $requestedDays = Carbon::parse($leaveRequest->start_date)->diffInDays(Carbon::parse($leaveRequest->end_date)) + 1;
-            $leaveBalance->used_leave_days += $requestedDays;
-            $leaveBalance->remaining_leave_days -= $requestedDays;
-            $leaveBalance->save();
-        }
-
-        $leaveRequest->update(['status' => 'approved']);
-        return redirect()->back()->with('success', 'Leave request approved.');
-    }
-
-    public function reject($id)
-    {
-        $leaveRequest = LeaveRequest::findOrFail($id);
-        $leaveRequest->update(['status' => 'rejected']);
-        return redirect()->back()->with('success', 'Leave request rejected.');
-    }
-
-    public function managerIndex()
-    {
-        $managerId = Auth::id();
-        $leaveRequests = LeaveRequest::with('employee')
-            ->whereHas('employee', function ($query) use ($managerId) {
-                $query->where('manager_id', $managerId);
-            })->get();
-        return view('leave.managerRequest', compact('leaveRequests'));
-    }
-
-    public function managerApprove($id)
-    {
-        $leaveRequest = LeaveRequest::findOrFail($id);
-        $leaveRequest->update(['status' => 'approved']);
-        return redirect()->back()->with('success', 'Leave request approved by Manager.');
-    }
-
-    public function managerReject($id)
-    {
-        $leaveRequest = LeaveRequest::findOrFail($id);
-        $leaveRequest->update(['status' => 'rejected']);
-        return redirect()->back()->with('success', 'Leave request rejected by Manager.');
     }
 }

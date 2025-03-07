@@ -10,6 +10,20 @@
             </h1>
         </div>
 
+        <!-- Display Leave Balance -->
+        @if($leaveBalance)
+            <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                <h4 class="text-lg font-bold">Your Leave Balance</h4>
+                <p>Total Leave Days: {{ $leaveBalance->total_leave_days }}</p>
+                <p>Used Leave Days: {{ $leaveBalance->used_leave_days }}</p>
+                <p>Remaining Leave Days: {{ $leaveBalance->remaining_leave_days }}</p>
+            </div>
+        @else
+            <div class="bg-red-100 p-4 rounded-lg mb-4">
+                <p class="text-red-600">Leave balance information not available.</p>
+            </div>
+        @endif
+
         <!-- Leave Request Form -->
         <div class="bg-white shadow-md rounded-lg mb-5">
             <div class="bg-blue-500 text-white py-3 px-4 rounded-t-lg">

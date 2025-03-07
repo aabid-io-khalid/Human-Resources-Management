@@ -14,9 +14,12 @@ class LeaveRequest extends Model
         'leave_type',
         'start_date',
         'end_date',
-        'reason', 
+        'reason',
         'status',
+        'hr_approval',
+        'manager_approval'
     ];
+    
 
 
     public function employee()

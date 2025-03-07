@@ -15,7 +15,7 @@ use App\Http\Controllers\RecoveryRequestController;
 use App\Http\Controllers\EmployeeProgressController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('login');
 });
 
 Route::get('/dashboard', function () {
