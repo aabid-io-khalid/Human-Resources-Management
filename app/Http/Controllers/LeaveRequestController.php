@@ -4,22 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use App\Models\LeaveRequest;
+use App\Models\LeaveBalance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class LeaveRequestController extends Controller
 {
-    
     public function create()
     {
         $managers = Employee::whereHas('role', function ($query) {
-            $query->where('name', 'Manager'); 
+            $query->where('name', 'Manager');
         })->get(['id', 'name']);
 
         $employee = Employee::where('user_id', auth()->id())->first();
         $leaveRequests = $employee ? LeaveRequest::where('employee_id', $employee->id)->paginate(10) : collect();
 
-        return view('leave.create', compact('managers', 'leaveRequests'));
+        $leaveBalance = $employee ? LeaveBalance::where('employee_id', $employee->id)->first() : null;
+
+        return view('leave.create', compact('managers', 'leaveRequests', 'leaveBalance'));
     }
 
     public function store(Request $request)
@@ -33,7 +36,18 @@ class LeaveRequestController extends Controller
 
         $employee = Employee::where('user_id', auth()->id())->first();
         if (!$employee) {
-            return redirect()->back()->with('error', 'Employee record not found for the authenticated user.');
+            return redirect()->back()->with('error', 'Employee record not found.');
+        }
+
+        $leaveBalance = LeaveBalance::where('employee_id', $employee->id)->first();
+        if (!$leaveBalance) {
+            return redirect()->back()->with('error', 'No leave balance found.');
+        }
+
+        $requestedDays = Carbon::parse($request->start_date)->diffInDays(Carbon::parse($request->end_date)) + 1;
+
+        if ($leaveBalance->remaining_leave_days < $requestedDays) {
+            return redirect()->back()->with('error', 'Insufficient leave balance.');
         }
 
         LeaveRequest::create([
@@ -49,11 +63,27 @@ class LeaveRequestController extends Controller
             ->with('success', 'Leave request submitted successfully.');
     }
 
+    public function updateAnnualLeaveBalance()
+    {
+        $employees = Employee::all();
+        foreach ($employees as $employee) {
+            $leaveBalance = LeaveBalance::firstOrCreate(
+                ['employee_id' => $employee->id],
+                ['total_leave_days' => 18, 'used_leave_days' => 0, 'remaining_leave_days' => 18]
+            );
+
+            $lastUpdate = $leaveBalance->updated_at;
+            if (!$lastUpdate || $lastUpdate->diffInYears(now()) >= 1) {
+                $leaveBalance->total_leave_days += 18; 
+                $leaveBalance->remaining_leave_days += 18;
+                $leaveBalance->save();
+            }
+        }
+    }
+
     public function index()
     {
-        $user = Auth::user();
-        $employee = Employee::where('user_id', $user->id)->first();
-
+        $employee = Employee::where('user_id', Auth::id())->first();
         $leaveRequests = $employee ? LeaveRequest::where('employee_id', $employee->id)->paginate(10) : collect();
 
         return view('leave.requests', compact('leaveRequests'));
@@ -62,11 +92,6 @@ class LeaveRequestController extends Controller
     public function show($id)
     {
         $leaveRequest = LeaveRequest::with(['manager:id,name', 'employee:id,name'])->findOrFail($id);
-
-        if (request()->wantsJson()) {
-            return response()->json($leaveRequest);
-        }
-
         return view('leave.show', compact('leaveRequest'));
     }
 
@@ -85,65 +110,45 @@ class LeaveRequestController extends Controller
 
         $leaveRequest->update($request->all());
 
-        if (request()->wantsJson()) {
-            return response()->json([
-                'message' => 'Leave request updated.',
-                'data' => $leaveRequest
-            ]);
-        }
-
         return redirect()->route('leave.requests.index')
             ->with('success', 'Leave request updated successfully.');
     }
 
     public function destroy($id)
-{
-    $leaveRequest = LeaveRequest::findOrFail($id);
-
-    $user = Auth::user();
-
-    if ($leaveRequest->status !== 'pending') {
-        return redirect()->back()->with('error', 'This request has already been processed and cannot be deleted.');
-    }
-
-    if ($leaveRequest->employee_id !== $user->id) {
-        return redirect()->back()->with('error', 'You can only delete your own leave requests.');
-    }
-
-    $leaveRequest->delete();
-
-    return redirect()->route('leave.requests.index')
-        ->with('success', 'Leave request deleted successfully.');
-}
-
-
-
-
-    public function getManagers()
     {
-        $managers = Employee::whereHas('role', function ($query) {
-            $query->where('name', 'Manager'); 
-        })->get(['id', 'name']);
+        $leaveRequest = LeaveRequest::findOrFail($id);
+        if ($leaveRequest->status !== 'pending') {
+            return redirect()->back()->with('error', 'This request has already been processed.');
+        }
 
-        return response()->json($managers);
+        if ($leaveRequest->employee_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'You can only delete your own requests.');
+        }
+
+        $leaveRequest->delete();
+
+        return redirect()->route('leave.requests.index')
+            ->with('success', 'Leave request deleted successfully.');
     }
-
-
-    // ---------------------------
-    // HR Actions
-    // ---------------------------
 
     public function hrIndex()
-{
-    $leaveRequests = LeaveRequest::with('employee')->paginate(10); 
-
-    return view('leave.rhRequest', compact('leaveRequests'));
-}
-
+    {
+        $leaveRequests = LeaveRequest::with('employee')->paginate(10);
+        return view('leave.rhRequest', compact('leaveRequests'));
+    }
 
     public function approve($id)
     {
         $leaveRequest = LeaveRequest::findOrFail($id);
+
+        $leaveBalance = LeaveBalance::where('employee_id', $leaveRequest->employee_id)->first();
+        if ($leaveBalance) {
+            $requestedDays = Carbon::parse($leaveRequest->start_date)->diffInDays(Carbon::parse($leaveRequest->end_date)) + 1;
+            $leaveBalance->used_leave_days += $requestedDays;
+            $leaveBalance->remaining_leave_days -= $requestedDays;
+            $leaveBalance->save();
+        }
+
         $leaveRequest->update(['status' => 'approved']);
         return redirect()->back()->with('success', 'Leave request approved.');
     }
@@ -154,10 +159,6 @@ class LeaveRequestController extends Controller
         $leaveRequest->update(['status' => 'rejected']);
         return redirect()->back()->with('success', 'Leave request rejected.');
     }
-
-    // ---------------------------
-    // Manager Actions
-    // ---------------------------
 
     public function managerIndex()
     {
