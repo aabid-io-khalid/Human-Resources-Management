@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use view;
+use App\Models\Role;
 use App\Models\Employee;
 use App\Models\Department;
-use App\Models\Role;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -14,31 +15,31 @@ class EmployeeController extends Controller
      */
 
      public function show(Employee $employee)
-{
-    // Load departments for dropdown
-    $departments = \App\Models\Department::all();
-    
-    // Load career steps and order them by date
-    $careerSteps = $employee->careerSteps()
-        ->orderBy('step_date', 'asc')
-        ->get();
-    
-    // Get current career step if any
-    $currentStep = $employee->careerSteps()
-        ->where('is_current', true)
-        ->first();
-        
-    return view('employees.show', compact('employee', 'departments', 'careerSteps', 'currentStep'));
-}
+     {
+         $departments = Department::all();
+         
+         $roles = Role::all();
+         
+         $careerSteps = $employee->careerSteps()
+             ->orderBy('step_date', 'asc')
+             ->get();
+         
+         $currentStep = $employee->careerSteps()
+             ->where('is_current', true)
+             ->first();
+             
+         return view('employees.show', compact('employee', 'departments', 'roles', 'careerSteps', 'currentStep'));
+     }
 
 
 
 public function index()
 {
-    $departments = Department::all(); // Assuming you have a Department model
-    $employees = Employee::all(); // Assuming you have an Employee model
+    $departments = Department::all(); 
+    $employees = Employee::all(); 
+    $roles = Role::all(); 
 
-    return view('employees.index', compact('departments', 'employees'));
+    return view('employees.index', compact('departments', 'employees', 'roles')); // Pass roles to the view
 }
 
 
@@ -47,8 +48,8 @@ public function index()
      */
     public function create()
     {
-        $departments = Department::all();  // Fetch departments
-        $roles = Role::all();  // Fetch roles
+        $departments = Department::all();  
+        $roles = Role::all();  
         return view('employees.create', compact('departments', 'roles'));
     }
 
@@ -57,7 +58,6 @@ public function index()
      */
     public function store(Request $request)
     {
-        // Validation (adjust the rules as necessary)
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees,email',
@@ -65,10 +65,8 @@ public function index()
             'role_id' => 'required|exists:roles,id',
         ]);
 
-        // Store the new employee
         Employee::create($validated);
 
-        // Redirect back with success message
         return redirect()->route('employees.index')->with('success', 'Employee created successfully.');
     }
 
@@ -76,33 +74,30 @@ public function index()
      * Show the form for editing the specified resource.
      */
     public function edit(Employee $employee)
-    {
-        // Fetch departments and roles
-        $departments = Department::all();
-        $roles = Role::all();
-
-        // Return view with employee data
-        return view('employees.show', compact('employee', 'departments', 'roles'));
-    }
+{
+    $departments = Department::all();
+    $roles = Role::all();
+    return view('employees.show', compact('employee', 'departments', 'roles'));
+}
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Employee $employee)
     {
-        // Validation (adjust the rules as necessary)
-        $validated = $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees,email,' . $employee->id,
-            'department_id' => 'required|exists:departments,id',
-            'role_id' => 'required|exists:roles,id',
+            // 'job_title' => 'nullable',
+            'role_id' => 'nullabel|exists:roles,id',
+            'department_id' => 'nullable|exists:departments,id',
+            'salary' => 'required|numeric',
+            'phone' => 'nullable|string'
         ]);
 
-        // Update the employee data
-        $employee->update($validated);
+        $employee->update($validatedData);
 
-        // Redirect back with success message
-        return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        return redirect()->route('employees.show', $employee->id)->with('success', 'Employee updated successfully.');
     }
 
     /**
@@ -110,10 +105,7 @@ public function index()
      */
     public function destroy(Employee $employee)
     {
-        // Delete the employee
         $employee->delete();
-
-        // Redirect back with success message
         return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');
     }
 }

@@ -203,16 +203,14 @@
     </div>
 </div>
 
-<!-- Add JavaScript for the modal -->
+<!--  JavaScript for the modal -->
 <script>
-    // Close modal when clicking outside of it
     window.addEventListener('click', function(event) {
         if (event.target.classList.contains('fixed') && event.target.classList.contains('inset-0')) {
             document.getElementById('addEmployeeModal').classList.add('hidden');
         }
     });
     
-    // Close modal with ESC key
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             document.getElementById('addEmployeeModal').classList.add('hidden');

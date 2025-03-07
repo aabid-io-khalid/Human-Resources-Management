@@ -82,7 +82,7 @@
 
                 </div>
                 <h2 class="text-xl font-bold view-mode"><?php echo e($employee->name); ?></h2>
-                <p class="text-sm text-gray-500">{{ $ employee->email }}</p>
+                <p class="text-sm text-gray-500"><?php echo e($employee->email); ?></p>
                 <p class="text-sm text-gray-700 mt-1 view-mode"><?php echo e($employee->job_title); ?></p>
                 <div class="mt-2">
                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
@@ -100,51 +100,71 @@
             <!-- Timeline Component -->
             <div class="relative">
                 <?php if(count($careerSteps) > 0): ?>
-                    <!-- Timeline Line -->
-                    <div class="absolute h-full w-0.5 bg-blue-500 left-6 top-0 transform -translate-x-1/2"></div>
-                    
-                    <!-- Timeline Items -->
-                    <div class="relative z-10">
-                        <div class="flex items-center space-x-8 mb-8">
+                    <!-- Enhanced Timeline Component -->
+                    <div class="relative career-timeline mb-10">
+                        <!-- Timeline Line -->
+                        <div class="absolute h-full w-1 bg-gradient-to-b from-blue-400 to-blue-600 left-0 top-0 transform translate-x-5"></div>
+                        
+                        <!-- Timeline Items -->
+                        <div class="space-y-8">
                             <?php $__currentLoopData = $careerSteps; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $step): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <div class="flex-1 text-center">
-                                    <div class="text-xs text-gray-500 mb-2"><?php echo e($step->step_date->format('d/m/Y')); ?></div>
-                                    <div class="relative">
-                                        <!-- Timeline Point -->
-                                        <div class="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 -top-4">
-                                            <div class="w-4 h-4 bg-white border-2 <?php echo e($step->is_current ? 'border-green-500' : 'border-blue-500'); ?> rounded-full"></div>
-                                        </div>
-                                        <?php if($index < count($careerSteps) - 1): ?>
-                                            <!-- Timeline Connector -->
-                                            <div class="absolute left-1/2 w-full h-0.5 bg-blue-500 top-0 transform -translate-y-1/2"></div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="mt-4 bg-gray-100 p-4 rounded-lg shadow hover:bg-gray-200 transition duration-200">
-                                        <div class="font-medium"><?php echo e($step->title); ?></div>
-                                        <?php if($step->type): ?>
-                                            <div class="text-sm text-gray-500">Type: <?php echo e($step->type); ?></div>
-                                        <?php endif; ?>
-                                        <?php if($step->status): ?>
-                                            <div class="text-xs mt-1">
-                                                <span class="px-2 py-0.5 rounded-full 
-                                                    <?php echo e($step->status == 'Active' ? 'bg-green-100 text-green-800' : 
-                                                       ($step->status == 'Certified' ? 'bg-blue-100 text-blue-800' : 
-                                                        'bg-gray-100 text-gray-800')); ?>">
-                                                    <?php echo e($step->status); ?>
-
-                                                </span>
+                                <div class="relative pl-14">
+                                    <!-- Timeline Point -->
+                                    <div class="absolute left-0 top-0 transform translate-x-4">
+                                        <div class="w-10 h-10 <?php echo e($step->is_current ? 'bg-green-500' : 'bg-blue-500'); ?> rounded-full flex items-center justify-center shadow-md">
+                                            <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                                                <div class="w-6 h-6 <?php echo e($step->is_current ? 'bg-green-500' : 'bg-blue-500'); ?> rounded-full"></div>
                                             </div>
-                                        <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Timeline Content -->
+                                    <div class="bg-white p-5 rounded-lg shadow-md border-l-4 <?php echo e($step->is_current ? 'border-green-500' : 'border-blue-500'); ?> hover:shadow-lg transition duration-300">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div>
+                                                <h4 class="font-bold text-lg text-gray-800"><?php echo e($step->title); ?></h4>
+                                                <p class="text-gray-600 text-sm"><?php echo e($step->step_date->format('F d, Y')); ?></p>
+                                            </div>
+                                            <div>
+                                                <?php if($step->status): ?>
+                                                    <span class="px-3 py-1 rounded-full text-xs font-semibold
+                                                        <?php echo e($step->status == 'Active' ? 'bg-green-100 text-green-800' : 
+                                                           ($step->status == 'Certified' ? 'bg-blue-100 text-blue-800' :
+                                                            ($step->status == 'Completed' ? 'bg-purple-100 text-purple-800' :
+                                                             ($step->status == 'Pass' ? 'bg-indigo-100 text-indigo-800' :
+                                                              'bg-gray-100 text-gray-800')))); ?>">
+                                                        <?php echo e($step->status); ?>
 
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            <?php if($step->type): ?>
+                                                <div class="text-sm"><span class="font-medium text-gray-700">Type:</span> <?php echo e($step->type); ?></div>
+                                            <?php endif; ?>
+                                            
+                                            <?php if($step->details): ?>
+                                                <div class="mt-2 text-sm text-gray-600"><?php echo e($step->details); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                        
                                         <!-- Admin actions -->
-                                        <div class="mt-2 flex space-x-2 justify-center">
-                                            <button type="button" onclick="editStep(<?php echo e($step->id); ?>)" class="text-xs text-blue-600 hover:underline">
+                                        <div class="mt-4 pt-3 border-t border-gray-100 flex space-x-4 justify-end">
+                                            <button type="button" onclick="editStep(<?php echo e($step->id); ?>)" class="text-xs flex items-center text-blue-600 hover:text-blue-800">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
                                                 Edit
                                             </button>
                                             <form action="<?php echo e(route('career-steps.destroy', $step->id)); ?>" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this step?');">
                                                 <?php echo csrf_field(); ?>
                                                 <?php echo method_field('DELETE'); ?>
-                                                <button type="submit" class="text-xs text-red-600 hover:underline">
+                                                <button type="submit" class="text-xs flex items-center text-red-600 hover:text-red-800">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
                                                     Delete
                                                 </button>
                                             </form>
@@ -218,231 +238,279 @@
                     <button type="button" onclick="showAddStepModal()" class="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
+                        </svg> 
                         Add Career Step
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Employee Details Form -->
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-            <form id="employeeForm" action="<?php echo e(route('employees.update', $employee->id)); ?>" method="POST">
-                <?php echo csrf_field(); ?>
-                <?php echo method_field('PUT'); ?>
-                
-                <div class="border-t border-gray-200">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-                        <!-- Left Column -->
-                        <div class="space-y-6">
-                            <!-- Profile Section -->
-                            <div class="edit-mode hidden">
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                                <input type="text" id="name" name="name" value="<?php echo e($employee->name); ?>" required class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                            </div>
+<!-- Add Edit Career Step Modal -->
+<div id="editStepModal" class="fixed inset-0 overflow-y-auto hidden z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
 
-                            <!-- Department Information -->
-                            <div>
-                                <h3 class="text-md font-medium text-gray-700 mb-3">Department Information</h3>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <div class="mb-4 edit-mode hidden">
-                                        <label for="department_id" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                                        <select id="department_id" name="department_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                            <option value="">Select Department</option>
-                                            <?php $__currentLoopData = $departments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $department): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                <option value="<?php echo e($department->id); ?>" <?php echo e($employee->department_id == $department->id ? 'selected' : ''); ?>>
-                                                    <?php echo e($department->name); ?>
-
-                                                </option>
-                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Edit Career Step</h3>
+                        <div class="mt-4">
+                            <form id="editStepForm" method="POST">
+                                <?php echo csrf_field(); ?>
+                                <?php echo method_field('PUT'); ?>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="edit_step_date" class="block text-sm font-medium text-gray-700">Date</label>
+                                        <input type="date" name="step_date" id="edit_step_date" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="edit_step_title" class="block text-sm font-medium text-gray-700">Title</label>
+                                        <input type="text" name="step_title" id="edit_step_title" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="edit_step_type" class="block text-sm font-medium text-gray-700">Type</label>
+                                        <select name="step_type" id="edit_step_type" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                            <option value="">Select Type</option>
+                                            <option value="CDI">CDI</option>
+                                            <option value="CDD">CDD</option>
+                                            <option value="Internship">Internship</option>
+                                            <option value="Certification">Certification</option>
+                                            <option value="Promotion">Promotion</option>
                                         </select>
                                     </div>
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                                        <p class="text-gray-900 view-mode"><?php echo e($employee->job_title); ?></p>
-                                        <div class="edit-mode hidden">
-                                            <input type="text" id="job_title" name="job_title" value="<?php echo e($employee->job_title); ?>" required class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                                        </div>
+                                    <div>
+                                        <label for="edit_step_status" class="block text-sm font-medium text-gray-700">Status</label>
+                                        <select name="step_status" id="edit_step_status" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                            <option value="Active">Active</option>
+                                            <option value="Completed">Completed</option>
+                                            <option value="Certified">Certified</option>
+                                            <option value="Pass">Pass</option>
+                                            <option value="Fail">Fail</option>
+                                        </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Salary</label>
-                                        <p class="text-gray-900 view-mode">$<?php echo e(number_format($employee->salary, 2)); ?></p>
-                                        <div class="edit-mode hidden">
-                                            <input type="number" id="salary" name="salary" value="<?php echo e($employee->salary); ?>" step="0.01" min="0" required class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                        <label for="edit_step_details" class="block text-sm font-medium text-gray-700">Details</label>
+                                        <textarea name="step_details" id="edit_step_details" rows="3" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5">
+                                            <input id="edit_is_current" name="is_current" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="edit_is_current" class="font-medium text-gray-700">Mark as current position</label>
+                                            <p class="text-gray-500">If checked, this will be shown as the employee's current position.</p>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Right Column -->
-                        <div class="space-y-6">
-                            <!-- Contact Information -->
-                            <div>
-                                <h3 class="text-md font-medium text-gray-700 mb-3">Contact Information</h3>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                                        <p class="text-gray-900 view-mode"><?php echo e($employee->email); ?></p>
-                                        <div class="edit-mode hidden">
-                                            <input type="email" id="email" name="email" value="<?php echo e($employee->email); ?>" required class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                                        <p class="text-gray-900 view-mode"><?php echo e($employee->phone ?? 'N/A'); ?></p>
-                                        <div class="edit-mode hidden">
-                                            <input type="tel" id="phone" name="phone" value="<?php echo e($employee->phone); ?>" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Employment Information -->
-                            <div>
-                                <h3 class="text-md font-medium text-gray-700 mb-3">Employment Information</h3>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Employee since</label>
-                                        <p class="text-gray-900"><?php echo e($employee->created_at->format('M d, Y')); ?></p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Last updated</label>
-                                        <p class="text-gray-900"><?php echo e($employee->updated_at->format('M d, Y')); ?></p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Actions -->
-                            <div class="flex items-center justify-end space-x-4 mt-8 edit-mode hidden">
-                                <button type="button" onclick="cancelEdit()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    Cancel
-                                </button>
-                                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    Save Changes
-                                </button>
-                            </div>
-                            
-                            <!-- Delete Employee Button (View Mode Only) -->
-                            <div class="mt-6 view-mode">
-                                <button type="button" onclick="showDeleteModal()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring- 2 focus:ring-offset-2 focus:ring-red-500">
-                                    <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                    Delete Employee
-                                </button>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="fixed inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background overlay -->
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m6 0l-3-3m3 3l-3 3" />
-                            </svg>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Delete Employee</h3>
-                            <div class="mt-2">
-                                <p class="text-sm text-gray-500">Are you sure you want to delete this employee? This action cannot be undone.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <form action="<?php echo e(route('employees.destroy', $employee->id)); ?>" method="POST">
-                        <?php echo csrf_field(); ?>
-                        <?php echo method_field('DELETE'); ?>
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-                            Delete
-                        </button>
-                    </form>                
-                    <button type="button" onclick="hideDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Cancel
-                    </button>
-                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="submit" form="editStepForm" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    Update Step
+                </button>
+                <button type="button" onclick="hideEditStepModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancel
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Add Career Step Modal -->
-    <div id="addStepModal" class="fixed inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background overlay -->
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        
 
-            <div class ="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
+
+
+
+
+
+
+
+
+<!-- Employee Details Form -->
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <form id="employeeForm" action="<?php echo e(route('employees.update', $employee->id)); ?>" method="POST">
+        <?php echo csrf_field(); ?>
+        <?php echo method_field('PUT'); ?>
+        
+        <div class="border-t border-gray-200">
+            <div class="grid grid-cols-2 md:grid-cols-2 gap-6 p-6">
+                <!-- Left Column -->
+                <div class="space-y-6">
+                    <!-- Profile Section -->
+                    <div class="edit-mode hidden">
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="name" name="name" value="<?php echo e($employee->name); ?>" required class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                    </div>
+
+                    <!-- Department Information -->
+                    <div>
+                        <h3 class="text-md font-medium text-gray-700 mb-3">Department Information</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="mb-4 edit-mode hidden">
+                                <label for="department_id" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                                <select id="department_id" name="department_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    <option value="">Select Department</option>
+                                    <?php $__currentLoopData = $departments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $department): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($department->id); ?>" <?php echo e($employee->department_id == $department->id ? 'selected' : ''); ?>>
+                                            <?php echo e($department->name); ?>
+
+                                        </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                                <p class="text-gray-900 view-mode"><?php echo e($employee->job_title); ?></p>
+                                <div class="edit-mode hidden">
+                                    <input type="text" id="job_title" name="job_title" value="<?php echo e($employee->job_title); ?>" required class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Salary</label>
+                                <p class="text-gray-900 view-mode">$<?php echo e(number_format($employee->salary, 2)); ?></p>
+                                <div class="edit-mode hidden">
+                                    <input type="number" id="salary" name="salary" value="<?php echo e($employee->salary); ?>" step="0.01" min="0" required class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                            </div>
                         </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Add Career Step</h3>
-                            <div class="mt-4">
-                                <form id="addStepForm" action="<?php echo e(route('employees.add-career-step', $employee->id)); ?>" method="POST">
-                                    <?php echo csrf_field(); ?>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label for="step_date" class="block text-sm font-medium text-gray-700">Date</label>
-                                            <input type="date" name="step_date" id="step_date" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <!-- Contact Information -->
+                    <div>
+                        <h3 class="text-md font-medium text-gray-700 mb-3">Contact Information</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                <p class="text-gray-900 view-mode"><?php echo e($employee->email); ?></p>
+                                <div class="edit-mode hidden">
+                                    <input type="email" id="email" name="email" value="<?php echo e($employee->email); ?>" required class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                <p class="text-gray-900 view-mode"><?php echo e($employee->phone ?? 'N/A'); ?></p>
+                                <div class="edit-mode hidden">
+                                    <input type="tel" id="phone" name="phone" value="<?php echo e($employee->phone); ?>" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Employment Information -->
+                    <div>
+                        <h3 class="text-md font-medium text-gray-700 mb-3">Employment Information</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Employee since</label>
+                                <p class="text-gray-900"><?php echo e($employee->created_at->format('M d, Y')); ?></p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Last updated</label>
+                                <p class="text-gray-900"><?php echo e($employee->updated_at->format('M d, Y')); ?></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center justify-end space-x-4 mt-8 edit-mode hidden">
+                        <button type="button" onclick="cancelEdit()" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring -blue-500">
+                            Cancel
+                        </button>
+                        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Save Changes
+                        </button>
+                    </div>
+                    
+                    <!-- Delete Employee Button (View Mode Only) -->
+                    <div class="mt-6 view-mode">
+                        <button type="button" onclick="showDeleteModal()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Delete Employee
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Career Step Modal -->
+<div id="addStepModal" class="fixed inset-0 overflow-y-auto hidden z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Add Career Step</h3>
+                        <div class="mt-4">
+                            <form id="addStepForm" action="<?php echo e(route('employees.add-career-step', $employee->id)); ?>" method="POST" onsubmit="return validateStepDate()">
+                                <?php echo csrf_field(); ?>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="step_date" class="block text-sm font-medium text-gray-700">Date</label>
+                                        <input type="date" name="step_date" id="step_date" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="step_title" class="block text-sm font-medium text-gray-700">Title</label>
+                                        <input type="text" name="step_title" id="step_title" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                    </div>
+                                    <div>
+                                        <label for="step_type" class="block text-sm font-medium text-gray-700">Type</label>
+                                        <select name="step_type" id="step _type" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                            <option value="">Select Type</option>
+                                            <option value="CDI">CDI</option>
+                                            <option value="CDD">CDD</option>
+                                            <option value="Internship">Internship</option>
+                                            <option value="Certification">Certification</option>
+                                            <option value="Promotion">Promotion</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="step_status" class="block text-sm font-medium text-gray-700">Status</label>
+                                        <select name="step_status" id="step_status" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                            <option value="Active">Active</option>
+                                            <option value="Completed">Completed</option>
+                                            <option value="Certified">Certified</option>
+                                            <option value="Pass">Pass</option>
+                                            <option value="Fail">Fail</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="step_details" class="block text-sm font-medium text-gray-700">Details</label>
+                                        <textarea name="step_details" id="step_details" rows="3" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5">
+                                            <input id="is_current" name="is_current" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                         </div>
-                                        <div>
-                                            <label for="step_title" class="block text-sm font-medium text-gray-700">Title</label>
-                                            <input type="text" name="step_title" id="step_title" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                                        </div>
-                                        <div>
-                                            <label for="step_type" class="block text-sm font-medium text-gray-700">Type</label>
-                                            <select name="step_type" id="step_type" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                <option value="">Select Type</option>
-                                                <option value="CDI">CDI</option>
-                                                <option value="CDD">CDD</option>
-                                                <option value="Internship">Internship</option>
-                                                <option value="Certification">Certification</option>
-                                                <option value="Promotion">Promotion</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label for="step_status" class="block text-sm font-medium text-gray-700">Status</label>
-                                            <select name="step_status" id="step_status" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                                <option value="Active">Active</option>
-                                                <option value="Completed">Completed</option>
-                                                <option value="Certified">Certified</option>
-                                                <option value="Pass">Pass</option>
-                                                <option value="Fail">Fail</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label for="step_details" class="block text-sm font-medium text-gray-700">Details</label>
-                                            <textarea name="step_details" id="step_details" rows="3" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
-                                        </div>
-                                        <div class="flex items-start">
-                                            <div class="flex items-center h-5">
-                                                <input id="is_current" name="is_current" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
-                                            </div>
-                                            <div class="ml-3 text-sm">
-                                                <label for="is_current" class="font-medium text-gray-700">Mark as current position</label>
-                                                <p class="text-gray-500">If checked, this will be shown as the employee's current position.</p>
-                                            </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="is_current" class="font-medium text-gray-700">Mark as current position</label>
+                                            <p class="text-gray-500">If checked, this will be shown as the employee's current position.</p>
                                         </div>
                                     </div>
-                                </form>
-                            </div>
-                        ```html
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
@@ -458,30 +526,26 @@
     </div>
 </div>
 
+
 <script>
-    // Toggle between view and edit modes
     document.getElementById('toggleEditMode').addEventListener('click', function() {
         const viewElements = document.querySelectorAll('.view-mode');
         const editElements = document.querySelectorAll('.edit-mode');
         const editButtonText = document.getElementById('editButtonText');
         const editIcon = document.getElementById('editIcon');
         
-        // Check current state
         const isEditMode = editElements[0].classList.contains('hidden');
         
         if (isEditMode) {
-            // Switch to edit mode
             viewElements.forEach(el => el.classList.add('hidden'));
             editElements.forEach(el => el.classList.remove('hidden'));
             editButtonText.textContent = 'Cancel Editing';
             editIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
         } else {
-            // Switch back to view mode
             cancelEdit();
         }
     });
     
-    // Cancel edit function
     function cancelEdit() {
         const viewElements = document.querySelectorAll('.view-mode');
         const editElements = document.querySelectorAll('.edit-mode');
@@ -494,30 +558,26 @@
         editIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />';
     }
     
-    // Show delete modal
     function showDeleteModal() {
         document.getElementById('deleteModal').classList.remove('hidden');
     }
     
-    // Hide delete modal
     function hideDeleteModal() {
         document.getElementById('deleteModal').classList.add('hidden');
     }
     
-    // Show add step modal
     function showAddStepModal() {
         document.getElementById('addStepModal').classList.remove('hidden');
     }
     
-    // Hide add step modal
     function hideAddStepModal() {
         document.getElementById('addStepModal').classList.add('hidden');
     }
     
-    // Close modals when clicking outside
     window.addEventListener('click', function(event) {
         const deleteModal = document.getElementById('deleteModal');
         const addStepModal = document.getElementById('addStepModal');
+        const editStepModal = document.getElementById('editStepModal');
         
         if (event.target === deleteModal) {
             hideDeleteModal();
@@ -526,29 +586,28 @@
         if (event.target === addStepModal) {
             hideAddStepModal();
         }
+        
+        if (event.target === editStepModal) {
+            hideEditStepModal();
+        }
     });
     
-    // Close modals with ESC key
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             hideDeleteModal();
             hideAddStepModal();
+            hideEditStepModal();
         }
     });
 
-    // Store career steps data in JavaScript
     const careerStepsData = <?php echo json_encode($careerSteps, 15, 512) ?>;
 
-    // Function to show edit modal with pre-filled data
     function editStep(stepId) {
-        // Find the step data from our JavaScript object
         const step = careerStepsData.find(s => s.id === stepId);
         
-        if ( step) {
-            // Update form action URL
+        if (step) {
             document.getElementById('editStepForm').action = `/career-steps/${stepId}`;
             
-            // Fill form fields
             document.getElementById('edit_step_date').value = step.step_date.substring(0, 10); // Format as YYYY-MM-DD
             document.getElementById('edit_step_title').value = step.title;
             document.getElementById('edit_step_type').value = step.type || '';
@@ -556,23 +615,33 @@
             document.getElementById('edit_step_details').value = step.details || '';
             document.getElementById('edit_is_current').checked = step.is_current;
             
-            // Show modal
             document.getElementById('editStepModal').classList.remove('hidden');
         }
     }
 
-    // Hide edit step modal
     function hideEditStepModal() {
         document.getElementById('editStepModal').classList.add('hidden');
     }
 
-    // Close edit modal when clicking outside
-    window.addEventListener('click', function(event) {
-        const modal = document.getElementById('editStepModal');
-        if (event.target === modal) {
-            hideEditStepModal();
+    function validateStepDate() {
+            const stepDateInput = document.getElementById('step_date');
+            const stepDate = new Date(stepDateInput.value);
+            const lastStepDate = new Date(careerStepsData[careerStepsData.length - 1].step_date);
+
+            if (stepDate <= lastStepDate) {
+                alert('The new step date must be after the last step date.');
+                return false;
+            }
+
+            const sixMonthsLater = new Date(lastStepDate);
+            sixMonthsLater.setMonth(lastStepDate.getMonth() + 6);
+            if (stepDate < sixMonthsLater) {
+                alert('The new step date must be at least 6 months after the last step date.');
+                return false;
+            }
+
+            return true; 
         }
-    });
 </script>
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\Youcode\Herd\hrsm\resources\views/employees/show.blade.php ENDPATH**/ ?>

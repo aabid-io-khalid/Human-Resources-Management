@@ -76,9 +76,6 @@ class DepartmentController extends Controller
     public function destroy($id)
 {
     $department = Department::findOrFail($id);
-    
-    // Optionally, check if the department has employees or a manager before deleting
-    // You can add your logic here if needed
 
     $department->delete();
 

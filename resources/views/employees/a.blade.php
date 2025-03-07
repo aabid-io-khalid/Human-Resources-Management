@@ -213,29 +213,24 @@
 </div>
 
 <script>
-    // Toggle between view and edit modes
     document.getElementById('toggleEditMode').addEventListener('click', function() {
         const viewElements = document.querySelectorAll('.view-mode');
         const editElements = document.querySelectorAll('.edit-mode');
         const editButtonText = document.getElementById('editButtonText');
         const editIcon = document.getElementById('editIcon');
         
-        // Check current state
         const isEditMode = editElements[0].classList.contains('hidden');
         
         if (isEditMode) {
-            // Switch to edit mode
             viewElements.forEach(el => el.classList.add('hidden'));
             editElements.forEach(el => el.classList.remove('hidden'));
             editButtonText.textContent = 'Cancel Editing';
             editIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
         } else {
-            // Switch back to view mode
             cancelEdit();
         }
     });
     
-    // Cancel edit function
     function cancelEdit() {
         const viewElements = document.querySelectorAll('.view-mode');
         const editElements = document.querySelectorAll('.edit-mode');
@@ -248,17 +243,14 @@
         editIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />';
     }
     
-    // Show delete modal
     function showDeleteModal() {
         document.getElementById('deleteModal').classList.remove('hidden');
     }
     
-    // Hide delete modal
     function hideDeleteModal() {
         document.getElementById('deleteModal').classList.add('hidden');
     }
     
-    // Close modal when clicking outside
     window.addEventListener('click', function(event) {
         const modal = document.getElementById('deleteModal');
         if (event.target === modal) {
@@ -266,7 +258,7 @@
         }
     });
     
-    // Close modal with ESC key
+    
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             hideDeleteModal();

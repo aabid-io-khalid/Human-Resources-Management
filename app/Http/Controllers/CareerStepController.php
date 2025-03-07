@@ -25,15 +25,12 @@ class CareerStepController extends Controller
             'step_details' => 'nullable|string',
         ]);
         
-        // Check if this should be the current step
         $isCurrent = $request->has('is_current');
         
-        // If this is marked as current, reset all other steps to not current
         if ($isCurrent) {
             $employee->careerSteps()->update(['is_current' => false]);
         }
         
-        // Create new career step
         $careerStep = $employee->careerSteps()->create([
             'step_date' => $validated['step_date'],
             'title' => $validated['step_title'],
@@ -56,32 +53,30 @@ class CareerStepController extends Controller
      */
     public function update(Request $request, CareerStep $careerStep)
     {
-        $validated = $request->validate([
+        $validatedData = $request->validate([
             'step_date' => 'required|date',
-            'step_title' => 'required|string|max:255',
-            'step_type' => 'nullable|string|max:255',
-            'step_status' => 'required|string|max:255',
+            'step_title' => 'required|string',
+            'step_type' => 'nullable|string',
+            'step_status' => 'required|string',
             'step_details' => 'nullable|string',
+            'is_current' => 'boolean'
         ]);
         
-        // Check if this should be the current step
         $isCurrent = $request->has('is_current');
         
-        // If this is marked as current, reset all other steps to not current
         if ($isCurrent) {
             $careerStep->employee->careerSteps()
                 ->where('id', '!=', $careerStep->id)
                 ->update(['is_current' => false]);
         }
         
-        // Update career step
         $careerStep->update([
-            'step_date' => $validated['step_date'],
-            'title' => $validated['step_title'],
-            'type' => $validated['step_type'],
-            'status' => $validated['step_status'],
-            'details' => $validated['step_details'],
-            'is_current' => $isCurrent,
+            'step_date' => $validatedData['step_date'],
+            'title' => $validatedData['step_title'],
+            'type' => $validatedData['step_type'],
+            'status' => $validatedData['step_status'],
+            'details' => $validatedData['step_details'],
+            'is_current' => $request->has('is_current')
         ]);
         
         return redirect()->route('employees.show', $careerStep->employee)

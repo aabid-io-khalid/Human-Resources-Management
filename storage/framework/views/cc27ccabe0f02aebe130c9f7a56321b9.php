@@ -76,19 +76,11 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">$<?php echo e(number_format($employee->salary, 2)); ?></td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div class="flex space-x-2">
-                            <a href="<?php echo e(route('employees.show', $employee->id)); ?>" class="text-blue-600 hover:text-blue-900">
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            <a href="<?php echo e(route('employees.show', $employee->id)); ?>" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">
+                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor">
+                                    <path d="M288 80c-65.2 0-118.8 29.6-159.9 67.7C89.6 183.5 63 226 49.4 256c13.6 30 40.2 72.5 78.6 108.3C169.2 402.4 222.8 432 288 432s118.8-29.6 159.9-67.7C486.4 328.5 513 286 526.6 256c-13.6-30-40.2-72.5-78.6-108.3C406.8 109.6 353.2 80 288 80zM95.4 112.6C142.5 68.8 207.2 32 288 32s145.5 36.8 192.6 80.6c46.8 43.5 78.1 95.4 93 131.1c3.3 7.9 3.3 16.7 0 24.6c-14.9 35.7-46.2 87.7-93 131.1C433.5 443.2 368.8 480 288 480s-145.5-36.8-192.6-80.6C48.6 356 17.3 304 2.5 268.3c-3.3-7.9-3.3-16.7 0-24.6C17.3 208 48.6 156 95.4 112.6zM288 336c44.2 0 80-35.8 80-80s-35.8-80-80-80c-.7 0-1.3 0-2 0c1.3 5.1 2 10.5 2 16c0 35.3-28.7 64-64 64c-5.5 0-10.9-.7-16-2c0 .7 0 1.3 0 2c0 44.2 35.8 80 80 80zm0-208a128 128 0 1 1 0 256 128 128 0 1 1 0-256z"/>
                                 </svg>
-                            </a>
-                            <form action="<?php echo e(route('employees.show', $employee->id)); ?>" method="POST" class="inline-block">
-                                
-                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this employee?')">
-                                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </form>
+                            </a>                                                       
                         </div>
                     </td>
                 </tr>
@@ -177,8 +169,17 @@
                                     </div>
                                     
                                     <div>
-                                        <label for="job_title" class="block text-sm font-medium text-gray-700">Job Title</label>
-                                        <input type="text" name="job_title" id="job_title" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                        <label for="role_id" class="block text-sm font-medium text-gray-700">Role</label>
+                                        <select name="role_id" id="role_id" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                            <option value="">Select Role</option>
+                                            <?php $__currentLoopData = $roles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($role->id); ?>"><?php echo e($role->name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        </select>
+                                        <div class="mt-2">
+                                            <label for="new_role" class="block text-sm font-medium text-gray-700">Or Create New Role</label>
+                                            <input type="text" name="new_role" id="new_role" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" placeholder="Enter new role name">
+                                        </div>
                                     </div>
                                     
                                     <div>
@@ -203,16 +204,14 @@
     </div>
 </div>
 
-<!-- Add JavaScript for the modal -->
+<!--  JavaScript for the modal -->
 <script>
-    // Close modal when clicking outside of it
     window.addEventListener('click', function(event) {
         if (event.target.classList.contains('fixed') && event.target.classList.contains('inset-0')) {
             document.getElementById('addEmployeeModal').classList.add('hidden');
         }
     });
     
-    // Close modal with ESC key
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             document.getElementById('addEmployeeModal').classList.add('hidden');

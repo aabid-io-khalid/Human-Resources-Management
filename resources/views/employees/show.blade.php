@@ -524,29 +524,24 @@
 
 
 <script>
-    // Toggle between view and edit modes
     document.getElementById('toggleEditMode').addEventListener('click', function() {
         const viewElements = document.querySelectorAll('.view-mode');
         const editElements = document.querySelectorAll('.edit-mode');
         const editButtonText = document.getElementById('editButtonText');
         const editIcon = document.getElementById('editIcon');
         
-        // Check current state
         const isEditMode = editElements[0].classList.contains('hidden');
         
         if (isEditMode) {
-            // Switch to edit mode
             viewElements.forEach(el => el.classList.add('hidden'));
             editElements.forEach(el => el.classList.remove('hidden'));
             editButtonText.textContent = 'Cancel Editing';
             editIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
         } else {
-            // Switch back to view mode
             cancelEdit();
         }
     });
     
-    // Cancel edit function
     function cancelEdit() {
         const viewElements = document.querySelectorAll('.view-mode');
         const editElements = document.querySelectorAll('.edit-mode');
@@ -559,27 +554,22 @@
         editIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />';
     }
     
-    // Show delete modal
     function showDeleteModal() {
         document.getElementById('deleteModal').classList.remove('hidden');
     }
     
-    // Hide delete modal
     function hideDeleteModal() {
         document.getElementById('deleteModal').classList.add('hidden');
     }
     
-    // Show add step modal
     function showAddStepModal() {
         document.getElementById('addStepModal').classList.remove('hidden');
     }
     
-    // Hide add step modal
     function hideAddStepModal() {
         document.getElementById('addStepModal').classList.add('hidden');
     }
     
-    // Close modals when clicking outside
     window.addEventListener('click', function(event) {
         const deleteModal = document.getElementById('deleteModal');
         const addStepModal = document.getElementById('addStepModal');
@@ -598,7 +588,6 @@
         }
     });
     
-    // Close modals with ESC key
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             hideDeleteModal();
@@ -607,19 +596,14 @@
         }
     });
 
-    // Store career steps data in JavaScript
     const careerStepsData = @json($careerSteps);
 
-    // Function to show edit modal with pre-filled data
     function editStep(stepId) {
-        // Find the step data from our JavaScript object
         const step = careerStepsData.find(s => s.id === stepId);
         
         if (step) {
-            // Update form action URL
             document.getElementById('editStepForm').action = `/career-steps/${stepId}`;
             
-            // Fill form fields
             document.getElementById('edit_step_date').value = step.step_date.substring(0, 10); // Format as YYYY-MM-DD
             document.getElementById('edit_step_title').value = step.title;
             document.getElementById('edit_step_type').value = step.type || '';
@@ -627,12 +611,10 @@
             document.getElementById('edit_step_details').value = step.details || '';
             document.getElementById('edit_is_current').checked = step.is_current;
             
-            // Show modal
             document.getElementById('editStepModal').classList.remove('hidden');
         }
     }
 
-    // Hide edit step modal
     function hideEditStepModal() {
         document.getElementById('editStepModal').classList.add('hidden');
     }
@@ -642,13 +624,11 @@
             const stepDate = new Date(stepDateInput.value);
             const lastStepDate = new Date(careerStepsData[careerStepsData.length - 1].step_date);
 
-            // Check if the new step date is after the last step date
             if (stepDate <= lastStepDate) {
                 alert('The new step date must be after the last step date.');
                 return false;
             }
 
-            // Check if the new step date is at least 6 months after the last step date
             const sixMonthsLater = new Date(lastStepDate);
             sixMonthsLater.setMonth(lastStepDate.getMonth() + 6);
             if (stepDate < sixMonthsLater) {
@@ -656,7 +636,7 @@
                 return false;
             }
 
-            return true; // Valid date
+            return true; 
         }
 </script>
 @endsection

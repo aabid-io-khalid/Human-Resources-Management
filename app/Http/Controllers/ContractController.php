@@ -10,7 +10,7 @@ class ContractController extends Controller
 {
     public function index()
     {
-        $contracts = Contract::paginate(10); // Pagination with 10 contracts per page
+        $contracts = Contract::paginate(10); 
     return view('contracts.index', compact('contracts'));
     }
 
